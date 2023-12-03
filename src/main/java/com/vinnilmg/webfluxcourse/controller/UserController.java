@@ -1,7 +1,10 @@
 package com.vinnilmg.webfluxcourse.controller;
 
+import com.vinnilmg.webfluxcourse.model.request.UserRequest;
+import com.vinnilmg.webfluxcourse.model.response.UserResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface UserController {
