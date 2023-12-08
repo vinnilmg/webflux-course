@@ -3,8 +3,10 @@ package com.vinnilmg.webfluxcourse.controller.exceptions;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import reactor.core.publisher.Mono;
 
 import static java.time.LocalDateTime.now;
@@ -27,6 +29,24 @@ public class ControllerExceptionHandler {
                                 .path(request.getPath().toString())
                                 .build()
                 ));
+    }
+
+    @ExceptionHandler(WebExchangeBindException.class)
+    public ResponseEntity<Mono<ValidationError>> validationError(
+            WebExchangeBindException e, ServerHttpRequest request
+    ) {
+        ValidationError error = new ValidationError(
+                now(),
+                request.getPath().toString(),
+                BAD_REQUEST.value(),
+                "Validation Error",
+                "Error on validation attributes"
+        );
+
+        // Pega field errors
+        e.getBindingResult().getFieldErrors().forEach(fe -> error.addError(fe.getField(), fe.getDefaultMessage()));
+
+        return ResponseEntity.badRequest().body(Mono.just(error));
     }
 
     private String verifyDupKey(String message) {
