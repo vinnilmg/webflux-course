@@ -1,6 +1,7 @@
 package com.vinnilmg.webfluxcourse.controller.impl;
 
 import com.vinnilmg.webfluxcourse.controller.UserController;
+import com.vinnilmg.webfluxcourse.mapper.UserMapper;
 import com.vinnilmg.webfluxcourse.model.request.UserRequest;
 import com.vinnilmg.webfluxcourse.model.response.UserResponse;
 import com.vinnilmg.webfluxcourse.service.UserService;
@@ -20,6 +21,7 @@ import reactor.core.publisher.Mono;
 public class UserControllerImpl implements UserController {
 
     private final UserService service;
+    private final UserMapper mapper;
 
     @Override
     public ResponseEntity<Mono<Void>> save(final UserRequest request) {
@@ -29,9 +31,9 @@ public class UserControllerImpl implements UserController {
     }
 
     @Override
-    public ResponseEntity<Mono<UserResponse>> find(String id) {
-        log.info("Iniciando find()");
-        return null;
+    public ResponseEntity<Mono<UserResponse>> findById(String id) {
+        log.info("Iniciando findById()");
+        return ResponseEntity.ok().body(service.findById(id).map(mapper::toResponse));
     }
 
     @Override
