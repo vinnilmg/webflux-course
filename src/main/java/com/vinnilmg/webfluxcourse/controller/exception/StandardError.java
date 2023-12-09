@@ -1,4 +1,4 @@
-package com.vinnilmg.webfluxcourse.controller.exceptions;
+package com.vinnilmg.webfluxcourse.controller.exception;
 
 import lombok.Builder;
 import lombok.Data;
