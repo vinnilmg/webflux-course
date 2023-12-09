@@ -24,4 +24,5 @@ public class UserRepository {
     public Flux<User> findAll() {
         return mongoTemplate.findAll(User.class);
     }
+
 }
