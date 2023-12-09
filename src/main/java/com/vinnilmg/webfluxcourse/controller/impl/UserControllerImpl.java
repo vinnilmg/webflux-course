@@ -33,13 +33,17 @@ public class UserControllerImpl implements UserController {
     @Override
     public ResponseEntity<Mono<UserResponse>> findById(String id) {
         log.info("Iniciando findById()");
-        return ResponseEntity.ok().body(service.findById(id).map(mapper::toResponse));
+        return ResponseEntity.ok().body(
+                service.findById(id).map(mapper::toResponse)
+        );
     }
 
     @Override
     public ResponseEntity<Flux<UserResponse>> findAll() {
         log.info("Iniciando findAll()");
-        return null;
+        return ResponseEntity.ok().body(
+                service.findAll().map(mapper::toResponse)
+        );
     }
 
     @Override
