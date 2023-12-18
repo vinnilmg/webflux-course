@@ -220,8 +220,18 @@ class UserControllerImplTest {
     }
 
     @Test
-    @DisplayName("Test find by id endpoint with success")
-    void delete() {
+    @DisplayName("Test delete endpoint with success")
+    void testDeleteWithSuccess() {
+        final var id = "12345";
+
+        when(service.delete(anyString())).thenReturn(Mono.just(User.builder().build()));
+
+        webTestClient.delete()
+                .uri(ENDPOINT_USERS.concat("/").concat(id))
+                .exchange()
+                .expectStatus().isOk();
+
+        verify(service).delete(anyString());
     }
 
     private static UserRequest makeUserRequest(final String nome, final String email, final String passw) {
