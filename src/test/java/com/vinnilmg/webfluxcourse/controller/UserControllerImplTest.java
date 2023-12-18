@@ -191,8 +191,32 @@ class UserControllerImplTest {
     }
 
     @Test
-    @DisplayName("Test find by id endpoint with success")
-    void update() {
+    @DisplayName("Test update endpoint with success")
+    void testUpdateWithSuccess() {
+        final var id = "999";
+        final var name = "Vini";
+        final var email = "vini@mail.com";
+        final var password = "12345";
+        final var request = makeUserRequest(name, email, password);
+        final var response = new UserResponse(id, name, email, password);
+
+        when(service.update(anyString(), any(UserRequest.class))).thenReturn(Mono.just(User.builder().build()));
+        when(mapper.toResponse(any(User.class))).thenReturn(response);
+
+        webTestClient.patch()
+                .uri(ENDPOINT_USERS.concat("/").concat(id))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(id)
+                .jsonPath("$.name").isEqualTo(name)
+                .jsonPath("$.email").isEqualTo(email)
+                .jsonPath("$.password").isEqualTo(password);
+
+        verify(service).update(anyString(), any(UserRequest.class));
+        verify(mapper).toResponse(any(User.class));
     }
 
     @Test
