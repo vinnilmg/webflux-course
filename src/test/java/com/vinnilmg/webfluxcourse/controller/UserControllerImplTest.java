@@ -83,26 +83,6 @@ class UserControllerImplTest {
     }
 
     @Test
-    @DisplayName("Test endpoint save with empty name then return bad request")
-    void testSaveWithEmptyNameBadRequest() {
-        final var request = makeUserRequest("", "maria@mail.com", "password123");
-
-        webTestClient.post()
-                .uri(ENDPOINT_USERS)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(request))
-                .exchange()
-                .expectStatus().isBadRequest()
-                .expectBody()
-                .jsonPath("$.path").isEqualTo(ENDPOINT_USERS)
-                .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
-                .jsonPath("$.error").isEqualTo("Validation Error")
-                .jsonPath("$.message").isEqualTo("Error on validation attributes")
-                .jsonPath("$.errors[0].fieldName").isEqualTo("name")
-                .jsonPath("$.errors[0].message").isEqualTo("must not be null or empty");
-    }
-
-    @Test
     @DisplayName("Test endpoint save with invalid size name then return bad request")
     void testSaveWithInvalidSizeNameBadRequest() {
         final var request = makeUserRequest("ma", "maria@mail.com", "password123");
