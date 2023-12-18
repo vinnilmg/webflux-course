@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -154,7 +155,7 @@ class UserControllerImplTest {
         when(mapper.toResponse(any(User.class))).thenReturn(response);
 
         webTestClient.get()
-                .uri(String.format("%s/%s", ENDPOINT_USERS, id))
+                .uri(ENDPOINT_USERS.concat("/").concat(id))
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
@@ -166,14 +167,36 @@ class UserControllerImplTest {
     }
 
     @Test
-    void findAll() {
+    @DisplayName("Test find all endpoint with success")
+    void testFindAllWithSuccess() {
+        final var id = "12345";
+        final var name = "Vinicius";
+        final var email = "vini@mail.com";
+        final var password = "password123";
+        final var response = new UserResponse(id, name, email, password);
+
+        when(service.findAll()).thenReturn(Flux.just(User.builder().build()));
+        when(mapper.toResponse(any(User.class))).thenReturn(response);
+
+        webTestClient.get()
+                .uri(ENDPOINT_USERS)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.[0].id").isEqualTo(id)
+                .jsonPath("$.[0].name").isEqualTo(name)
+                .jsonPath("$.[0].email").isEqualTo(email)
+                .jsonPath("$.[0].password").isEqualTo(password);
     }
 
     @Test
+    @DisplayName("Test find by id endpoint with success")
     void update() {
     }
 
     @Test
+    @DisplayName("Test find by id endpoint with success")
     void delete() {
     }
 
