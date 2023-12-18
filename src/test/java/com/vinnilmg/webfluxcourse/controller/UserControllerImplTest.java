@@ -56,8 +56,8 @@ class UserControllerImplTest {
     }
 
     @Test
-    @DisplayName("Test endpoint save with bad request")
-    void testSaveWithBadRequest() {
+    @DisplayName("Test endpoint save with invalid name then return bad request")
+    void testSaveWithInvalidNameBadRequest() {
         final var request = makeUserRequest(" Mariazinha", "maria@mail.com", "password123");
 
         webTestClient.post()
@@ -73,6 +73,66 @@ class UserControllerImplTest {
                 .jsonPath("$.message").isEqualTo("Error on validation attributes")
                 .jsonPath("$.errors[0].fieldName").isEqualTo("name")
                 .jsonPath("$.errors[0].message").isEqualTo("field cannot have blank spaces at the end or the begin");
+    }
+
+    @Test
+    @DisplayName("Test endpoint save with empty name then return bad request")
+    void testSaveWithEmptyNameBadRequest() {
+        final var request = makeUserRequest("", "maria@mail.com", "password123");
+
+        webTestClient.post()
+                .uri(ENDPOINT_USERS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.path").isEqualTo(ENDPOINT_USERS)
+                .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
+                .jsonPath("$.error").isEqualTo("Validation Error")
+                .jsonPath("$.message").isEqualTo("Error on validation attributes")
+                .jsonPath("$.errors[0].fieldName").isEqualTo("name")
+                .jsonPath("$.errors[0].message").isEqualTo("must not be null or empty");
+    }
+
+    @Test
+    @DisplayName("Test endpoint save with invalid size name then return bad request")
+    void testSaveWithInvalidSizeNameBadRequest() {
+        final var request = makeUserRequest("ma", "maria@mail.com", "password123");
+
+        webTestClient.post()
+                .uri(ENDPOINT_USERS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.path").isEqualTo(ENDPOINT_USERS)
+                .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
+                .jsonPath("$.error").isEqualTo("Validation Error")
+                .jsonPath("$.message").isEqualTo("Error on validation attributes")
+                .jsonPath("$.errors[0].fieldName").isEqualTo("name")
+                .jsonPath("$.errors[0].message").isEqualTo("must be between 3 and 50 characters");
+    }
+
+    @Test
+    @DisplayName("Test endpoint save with invalid email then return bad request")
+    void testSaveWithInvalidEmailBadRequest() {
+        final var request = makeUserRequest("Maria", "mariamail.com", "password123");
+
+        webTestClient.post()
+                .uri(ENDPOINT_USERS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.path").isEqualTo(ENDPOINT_USERS)
+                .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
+                .jsonPath("$.error").isEqualTo("Validation Error")
+                .jsonPath("$.message").isEqualTo("Error on validation attributes")
+                .jsonPath("$.errors[0].fieldName").isEqualTo("email")
+                .jsonPath("$.errors[0].message").isEqualTo("invalid e-mail");
     }
 
     @Test
