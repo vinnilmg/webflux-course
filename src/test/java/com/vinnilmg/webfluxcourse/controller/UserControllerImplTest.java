@@ -2,7 +2,6 @@ package com.vinnilmg.webfluxcourse.controller;
 
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.vinnilmg.webfluxcourse.entity.User;
-import com.vinnilmg.webfluxcourse.mapper.UserMapper;
 import com.vinnilmg.webfluxcourse.model.request.UserRequest;
 import com.vinnilmg.webfluxcourse.service.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +20,7 @@ import reactor.core.publisher.Mono;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -34,26 +34,45 @@ class UserControllerImplTest {
     private UserService service;
 
     @MockBean
-    private UserMapper mapper;
-
-    @MockBean
     private MongoClient mongoClient;
+
+    private static final String ENDPOINT_USERS = "/users";
 
     @Test
     @DisplayName("Test endpoint save with success")
     void testSaveWithSuccess() {
-        final var request = new UserRequest("Mariazinha", "maria@mail.com", "password123");
+        final var request = makeUserRequest("Mariazinha", "maria@mail.com", "password123");
 
         when(service.save(any(UserRequest.class))).thenReturn(Mono.just(User.builder().build()));
 
         webTestClient.post()
-                .uri("/users")
+                .uri(ENDPOINT_USERS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(request))
                 .exchange()
                 .expectStatus().isCreated();
 
         verify(service).save(any(UserRequest.class)); // Default: times == 1
+    }
+
+    @Test
+    @DisplayName("Test endpoint save with bad request")
+    void testSaveWithBadRequest() {
+        final var request = makeUserRequest(" Mariazinha", "maria@mail.com", "password123");
+
+        webTestClient.post()
+                .uri(ENDPOINT_USERS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.path").isEqualTo(ENDPOINT_USERS)
+                .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
+                .jsonPath("$.error").isEqualTo("Validation Error")
+                .jsonPath("$.message").isEqualTo("Error on validation attributes")
+                .jsonPath("$.errors[0].fieldName").isEqualTo("name")
+                .jsonPath("$.errors[0].message").isEqualTo("field cannot have blank spaces at the end or the begin");
     }
 
     @Test
@@ -70,5 +89,9 @@ class UserControllerImplTest {
 
     @Test
     void delete() {
+    }
+
+    private static UserRequest makeUserRequest(final String nome, final String email, final String passw) {
+        return new UserRequest(nome, email, passw);
     }
 }
